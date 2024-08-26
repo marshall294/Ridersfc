@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match Highlights</title>
+    <link rel="stylesheet" href="styles3.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Match Highlights</h1>
+        <div id="media-list"></div>
+    </div>
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js';
+        import { getDatabase, ref, onValue, update } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js';
+        import { getStorage, ref as storageRef, getDownloadURL } from 'https://www.gstatic.com/firebasejs/9.0.0/firebase-storage.js';
+
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBh4MhRuHWDUa8343DR7LXKDAOjQQh-ZqE",
+            authDomain: "match-fce0a.firebaseapp.com",
+            databaseURL: "https://match-fce0a-default-rtdb.firebaseio.com",
+            projectId: "match-fce0a",
+            storageBucket: "match-fce0a.appspot.com",
+            messagingSenderId: "805294870836",
+            appId: "1:805294870836:web:67ca4195273cd4c58b9561",
+            measurementId: "G-8NL16FSZ0C"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const storage = getStorage(app);
+
+        function displayMedia() {
+            const mediaList = document.getElementById('media-list');
+            const highlightsRef = ref(database, 'highlights');
+
+            onValue(highlightsRef, (snapshot) => {
+                mediaList.innerHTML = ''; // Clear existing content
+
+                snapshot.forEach((childSnapshot) => {
+                    const mediaId = childSnapshot.key;
+                    const media = childSnapshot.val();
+                    
+                    const mediaElement = document.createElement('div');
+                    mediaElement.className = 'media-item';
+
+                    const mediaContent = media.type === 'image'
+                        ? `<img src="${media.url}" alt="${media.caption}" />`
+                        : `<video controls src="${media.url}"></video>`;
+
+                    // Construct the HTML for media item
+                    mediaElement.innerHTML = `
+                        <div class="media-content">
+                            ${mediaContent}
+                        </div>
+                        <div class="media-caption">
+                            ${media.caption}
+                        </div>
+                        <div class="media-interactions">
+                            <button class="like-button" data-id="${mediaId}">Like (${media.likes || 0})</button>
+                            <button class="comment-button" data-id="${mediaId}">Comment</button>
+                            <button class="share-button" data-id="${mediaId}">Share (${media.shares || 0})</button>
+                            <p>Last updated: ${new Date(media.timestamp).toLocaleString()}</p>
+                        </div>
+                        <div class="comments-section" id="comments-${mediaId}">
+                            <h3>Comments</h3>
+                            <ul>
+                                ${media.comments ? media.comments.map(comment => `<li>${comment}</li>`).join('') : ''}
+                            </ul>
+                            <input type="text" id="comment-input-${mediaId}" placeholder="Add a comment">
+                            <button class="post-comment" data-id="${mediaId}">Post Comment</button>
+                        </div>
+                    `;
+
+                    mediaList.appendChild(mediaElement);
+                });
+
+                attachEventListeners();
+            });
+        }
+
+        function attachEventListeners() {
+            const likeButtons = document.querySelectorAll('.like-button');
+            const commentButtons = document.querySelectorAll('.post-comment');
+            const shareButtons = document.querySelectorAll('.share-button');
+
+            likeButtons.forEach(button => {
+                button.addEventListener('click', () => handleLike(button.getAttribute('data-id')));
+            });
+
+            commentButtons.forEach(button => {
+                button.addEventListener('click', () => handlePostComment(button.getAttribute('data-id')));
+            });
+
+            shareButtons.forEach(button => {
+                button.addEventListener('click', () => handleShare(button.getAttribute('data-id')));
+            });
+        }
+
+        function handleLike(mediaId) {
+            const mediaRef = ref(database, `highlights/${mediaId}`);
+            onValue(mediaRef, (snapshot) => {
+                const media = snapshot.val();
+                const newLikes = (media.likes || 0) + 1;
+                update(mediaRef, { likes: newLikes, timestamp: Date.now() });
+            });
+        }
+
+        function handlePostComment(mediaId) {
+            const commentInput = document.getElementById(`comment-input-${mediaId}`);
+            const comment = commentInput.value;
+            if (comment) {
+                const mediaRef = ref(database, `highlights/${mediaId}`);
+                onValue(mediaRef, (snapshot) => {
+                    const media = snapshot.val();
+                    const updatedComments = media.comments ? [...media.comments, comment] : [comment];
+                    update(mediaRef, { comments: updatedComments, timestamp: Date.now() });
+                });
+                commentInput.value = ''; // Clear the input field after posting
+            }
+        }
+
+        function handleShare(mediaId) {
+            const mediaRef = ref(database, `highlights/${mediaId}`);
+            onValue(mediaRef, (snapshot) => {
+                const media = snapshot.val();
+                const url = media.url;
+                const shareText = encodeURIComponent(`Check out this media: ${media.caption}`);
+                const shareUrl = encodeURIComponent(url);
+
+                // Update share count
+                const newShares = (media.shares || 0) + 1;
+                update(mediaRef, { shares: newShares, timestamp: Date.now() });
+
+                // Open share dialogs
+                window.open(`https://api.whatsapp.com/send?text=${shareText} ${shareUrl}`, '_blank');
+                window.open(`https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`, '_blank');
+                window.open(`https://www.tiktok.com/share?url=${shareUrl}`, '_blank');
+            });
+        }
+
+        // Call displayMedia when the page loads
+        displayMedia();
+    </script>
+</body>
+</html>

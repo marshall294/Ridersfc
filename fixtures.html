@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riders FC Matches</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBh4MhRuHWDUa8343DR7LXKDAOjQQh-ZqE",
+            authDomain: "match-fce0a.firebaseapp.com",
+            databaseURL: "https://match-fce0a-default-rtdb.firebaseio.com",
+            projectId: "match-fce0a",
+            storageBucket: "match-fce0a.appspot.com",
+            messagingSenderId: "805294870836",
+            appId: "1:805294870836:web:67ca4195273cd4c58b9561",
+            measurementId: "G-8NL16FSZ0C"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const matchesTable = document.getElementById('matchesTable');
+
+            // Fetch matches from Firebase Realtime Database
+            const matchesRef = ref(database, 'matches');
+            onValue(matchesRef, snapshot => {
+                matchesTable.innerHTML = `
+                    <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Home Team</th>
+                        <th>Away Team</th>
+                        <th>Score</th>
+                        <th>Result</th>
+                        <th>Competition</th>
+                    </tr>
+                `;
+
+                const matches = snapshot.val();
+                if (matches) {
+                    Object.keys(matches).forEach(key => {
+                        const match = matches[key];
+                        const resultClass = match.result.toLowerCase();
+                        matchesTable.innerHTML += `
+                            <tr>
+                                <td>${match.date}</td>
+                                <td>${match.time}</td>
+                                <td>${match.home}</td>
+                                <td>${match.away}</td>
+                                <td>${match.score || 'N/A'}</td>
+                                <td class="${resultClass}">${match.result}</td>
+                                <td>${match.competition || 'N/A'}</td>
+                            </tr>
+                        `;
+                    });
+                }
+            });
+
+            // Highlight match function
+            window.highlightMatch = function (matchId) {
+                window.location.href = `highlight.html?matchId=${matchId}`;
+            };
+        });
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background-color: none;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+        .nav {
+            display: flex;
+            justify-content: center;
+            background-color: none;
+        }
+        .nav a {
+            color: blue;
+            padding: 14px 20px;
+            text-decoration: none;
+            text-align: center;
+        }
+        .nav a:hover {
+            background-color: #575757;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .won {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .loss {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .draw {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Riders FC</h1>
+    </div>
+    <div class="nav">
+        <a href="index.html">Home</a>
+        <a href="highlight.html">Highlight</a>
+    </div>
+    <div class="container">
+        <h2>Matches</h2>
+        <table id="matchesTable">
+            <!-- Table headers and rows will be populated dynamically -->
+        </table>
+    </div>
+</body>
+</html>

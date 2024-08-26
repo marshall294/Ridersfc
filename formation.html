@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Football Field Formation</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        .field {
+            width: 800px;
+            height: 500px;
+            border: 2px solid #000;
+            position: relative;
+            background-color: #009933;
+            overflow: hidden;
+        }
+
+        .line {
+            position: absolute;
+            border-top: 2px solid #fff;
+            width: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .center-circle {
+            position: absolute;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .player {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #fff;
+        }
+
+        .home .player {
+            background-color: #ff0000;
+        }
+
+        .away .player {
+            background-color: #0000ff;
+        }
+
+        /* Home team formation 4-4-2 */
+        .home .player1 { top: 10%; left: 15%; }
+        .home .player2 { top: 10%; left: 30%; }
+        .home .player3 { top: 10%; left: 45%; }
+        .home .player4 { top: 10%; left: 60%; }
+        .home .player5 { top: 30%; left: 20%; }
+        .home .player6 { top: 30%; left: 35%; }
+        .home .player7 { top: 30%; left: 50%; }
+        .home .player8 { top: 30%; left: 65%; }
+        .home .player9 { top: 50%; left: 30%; }
+        .home .player10 { top: 50%; left: 45%; }
+        .home .player11 { top: 50%; left: 60%; }
+
+        /* Away team formation 4-3-3 */
+        .away .player1 { bottom: 10%; left: 15%; }
+        .away .player2 { bottom: 10%; left: 30%; }
+        .away .player3 { bottom: 10%; left: 45%; }
+        .away .player4 { bottom: 10%; left: 60%; }
+        .away .player5 { bottom: 30%; left: 20%; }
+        .away .player6 { bottom: 30%; left: 37%; }
+        .away .player7 { bottom: 30%; left: 54%; }
+        .away .player8 { bottom: 30%; left: 71%; }
+        .away .player9 { bottom: 50%; left: 25%; }
+        .away .player10 { bottom: 50%; left: 45%; }
+        .away .player11 { bottom: 50%; left: 65%; }
+
+        /* Labels */
+        .label {
+            position: absolute;
+            color: #fff;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .home-label { top: 10px; left: 10px; }
+        .away-label { bottom: 10px; right: 10px; }
+        .formation-label { top: 0; left: 50%; transform: translateX(-50%); font-size: 16px; background: rgba(0,0,0,0.5); padding: 2px 5px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="field">
+        <!-- Center line and circle -->
+        <div class="line"></div>
+        <div class="center-circle"></div>
+
+        <!-- Home Team Formation 4-4-2 -->
+        <div class="home">
+            <div class="player player1"></div>
+            <div class="player player2"></div>
+            <div class="player player3"></div>
+            <div class="player player4"></div>
+            <div class="player player5"></div>
+            <div class="player player6"></div>
+            <div class="player player7"></div>
+            <div class="player player8"></div>
+            <div class="player player9"></div>
+            <div class="player player10"></div>
+            <div class="player player11"></div>
+        </div>
+
+        <!-- Away Team Formation 4-3-3 -->
+        <div class="away">
+            <div class="player player1"></div>
+            <div class="player player2"></div>
+            <div class="player player3"></div>
+            <div class="player player4"></div>
+            <div class="player player5"></div>
+            <div class="player player6"></div>
+            <div class="player player7"></div>
+            <div class="player player8"></div>
+            <div class="player player9"></div>
+            <div class="player player10"></div>
+            <div class="player player11"></div>
+        </div>
+
+        <!-- Labels -->
+        <div class="label home-label">Home Team</div>
+        <div class="label away-label">Away Team</div>
+        <div class="label formation-label">4-4-2 vs 4-3-3</div>
+    </div>
+</body>
+</html>

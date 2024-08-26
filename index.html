@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riders FC - Official Site</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #1a1a1a, #2c2c2c);
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+        .header {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            font-size: 2em;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            letter-spacing: 2px;
+            transform: perspective(1000px) rotateX(10deg);
+            animation: headerAnimation 2s infinite alternate;
+        }
+        .logo {
+            width: 50px;
+            height: 50px;
+        }
+        .date-time {
+            font-size: 1em;
+        }
+        .nav {
+            display: flex;
+            justify-content: center;
+            background-color: #333;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        .nav a {
+            color: white;
+            padding: 15px 20px;
+            text-decoration: none;
+            text-align: center;
+            transition: background-color 0.3s ease;
+            flex-grow: 1;
+        }
+        .nav a:hover {
+            background-color: #575757;
+        }
+        .main-content {
+            text-align: center;
+            padding: 20px;
+            margin: 0 auto;
+            max-width: 1200px;
+        }
+        .main-content h2 {
+            font-size: 2em;
+            margin: 20px 0;
+            animation: fadeIn 2s ease-in;
+        }
+        .main-content p {
+            font-size: 1.2em;
+            margin: 20px 0;
+            line-height: 1.6;
+            animation: fadeIn 2s ease-in;
+            padding: 0 20px;
+        }
+        .cta-button {
+            display: inline-block;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            color: #fff;
+            background-color: #ff5722;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            animation: bounce 2s infinite;
+        }
+        .cta-button:hover {
+            background-color: #e64a19;
+        }
+        .features {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 30px 0;
+            padding: 0 20px;
+        }
+        .feature {
+            background: #333;
+            padding: 20px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 350px;
+            margin: 10px 0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .feature:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+        }
+        .feature img {
+            width: 100%;
+            border-radius: 10px;
+        }
+        .feature h3 {
+            margin: 10px 0;
+            font-size: 1.5em;
+        }
+        .footer {
+            background: #222;
+            color: #bbb;
+            text-align: center;
+            padding: 20px;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+            box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.3);
+        }
+        .footer p {
+            margin: 0;
+        }
+        @keyframes headerAnimation {
+            from {
+                transform: perspective(1000px) rotateX(0deg);
+            }
+            to {
+                transform: perspective(1000px) rotateX(15deg);
+            }
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        .login-container {
+            display: none;
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            text-align: center;
+        }
+        .login-container input[type="text"],
+        .login-container input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+        .login-container button {
+            padding: 10px 20px;
+            font-size: 1em;
+            color: #fff;
+            background-color: #ff5722;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .login-container button:hover {
+            background-color: #e64a19;
+        }
+
+        /* Responsive Design */
+        @media (min-width: 768px) {
+            .main-content {
+                padding: 40px;
+            }
+            .features {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: space-around;
+            }
+            .feature {
+                width: 30%;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+            .nav a {
+                padding: 10px 15px;
+                font-size: 0.9em;
+            }
+            .main-content h2 {
+                font-size: 1.8em;
+            }
+            .main-content p {
+                font-size: 1.1em;
+            }
+            .cta-button {
+                font-size: 1em;
+                padding: 10px 20px;
+            }
+            .feature {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                flex-direction: column;
+                padding: 15px;
+            }
+            .logo {
+                width: 80px;
+                height: 80px;
+            }
+            .header h1 {
+                font-size: 1.3em;
+            }
+            .date-time {
+                font-size: 0.9em;
+            }
+            .main-content h2 {
+                font-size: 1.6em;
+            }
+            .main-content p {
+                font-size: 1em;
+            }
+            .cta-button {
+                font-size: 0.9em;
+                padding: 8px 15px;
+            }
+            .feature h3 {
+                font-size: 1.3em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="logo.png" alt="Riders FC Logo" class="logo">
+        <h1>Riders FC</h1>
+        <div class="date-time" id="dateTime"></div>
+    </div>
+    <div class="nav">
+        <a href="upcoming.html">Upcoming</a>
+        <a href="team-list.html">Team</a>
+        <a href="fixtures.html">Fixtures</a>
+        <a href="update.html">Update Match</a>
+    </div>
+    <div class="main-content">
+        <h2>Welcome to Riders FC</h2>
+        <p>Your ultimate destination for all the latest updates, scores, and highlights from Riders FC. Stay tuned for exciting match details and exclusive media content.</p>
+        <a href="https://riders-football-club.vercel.app/index.html" class="cta-button">More About Riders FC</a>
+    </div>
+    <div class="features">
+        <div class="feature">
+            <img src="photo2.jpeg" alt="Team">
+            <h3>Our Team</h3>
+            <p>Meet the talented squad of Riders FC. Discover their skills, positions, and achievements.</p>
+        </div>
+        <div class="feature">
+            <img src="image1.png" alt="Fixtures">
+            <h3>Upcoming Fixtures</h3>
+            <p>Check out the upcoming fixtures and mark your calendar for exciting matches.</p>
+        </div>
+        <div class="feature">
+            <img src="photo4.jpeg" alt="Media">
+            <h3>Media Gallery</h3>
+            <p>Explore our exclusive media gallery with images and videos from past events.</p>
+        </div>
+    </div>
+    <div id="loginContainer" class="login-container">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <input type="text" id="username" placeholder="Username" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+    <footer class="footer">
+        <p>&copy; 2024 Riders FC. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const username = 'admin';
+            const password = 'password123';
+            const dateTimeElement = document.getElementById('dateTime');
+
+            function updateDateTime() {
+                const now = new Date();
+                const formattedDateTime = now.toLocaleString();
+                dateTimeElement.textContent = formattedDateTime;
+            }
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+
+            const loginContainer = document.getElementById('loginContainer');
+            const loginForm = document.getElementById('loginForm');
+            loginContainer.style.display = 'block';
+
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const enteredUsername = document.getElementById('username').value;
+                const enteredPassword = document.getElementById('password').value;
+
+                if (enteredUsername === username && enteredPassword === password) {
+                    loginContainer.style.display = 'none';
+                } else {
+                    alert('Invalid login credentials. Please try again.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

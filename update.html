@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Match - Riders FC</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+        import { getDatabase, ref, push, set, update, onValue, get } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-storage.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBh4MhRuHWDUa8343DR7LXKDAOjQQh-ZqE",
+            authDomain: "match-fce0a.firebaseapp.com",
+            databaseURL: "https://match-fce0a-default-rtdb.firebaseio.com",
+            projectId: "match-fce0a",
+            storageBucket: "match-fce0a.appspot.com",
+            messagingSenderId: "805294870836",
+            appId: "1:805294870836:web:67ca4195273cd4c58b9561",
+            measurementId: "G-8NL16FSZ0C"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const storage = getStorage(app);
+        const auth = getAuth(app);
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const loginForm = document.getElementById('loginForm');
+            const loginEmail = document.getElementById('loginEmail');
+            const loginPassword = document.getElementById('loginPassword');
+            const matchSelect = document.getElementById('matchSelect');
+            const matchDetails = document.getElementById('matchDetails');
+            const updateForm = document.getElementById('updateForm');
+            const mediaFileInput = document.getElementById('mediaFile');
+            const newMatchForm = document.getElementById('newMatchForm');
+
+            // Login form submission
+            loginForm.addEventListener('submit', function (event) {
+                event.preventDefault();
+                const email = loginEmail.value;
+                const password = loginPassword.value;
+
+                signInWithEmailAndPassword(auth, email, password)
+                    .then((userCredential) => {
+                        // Signed in
+                        sessionStorage.setItem('loggedIn', 'true');
+                        document.querySelector('.login-container').style.display = 'none';
+                        document.querySelector('.container').style.display = 'block';
+                        loginForm.reset();
+                    })
+                    .catch((error) => {
+                        console.error('Error logging in:', error);
+                        alert('Failed to login. Please check your credentials.');
+                    });
+            });
+
+            // Monitor auth state changes
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    document.querySelector('.login-container').style.display = 'none';
+                    document.querySelector('.container').style.display = 'block';
+                } else {
+                    document.querySelector('.login-container').style.display = 'block';
+                    document.querySelector('.container').style.display = 'none';
+                }
+            });
+
+            // Populate the match dropdown for editing
+            const matchesRef = ref(database, 'matches');
+            onValue(matchesRef, snapshot => {
+                matchSelect.innerHTML = '<option value="">Select a match</option>'; // Clear and add default option
+                const matches = snapshot.val();
+                if (matches) {
+                    Object.keys(matches).forEach(key => {
+                        const match = matches[key];
+                        const option = document.createElement('option');
+                        option.value = key;
+                        option.textContent = `${match.date} - ${match.home} vs ${match.away}`;
+                        matchSelect.appendChild(option);
+                    });
+                }
+            });
+
+            // Handle match selection for editing
+            matchSelect.addEventListener('change', function () {
+                const matchId = this.value;
+                if (matchId) {
+                    const matchRef = ref(database, `matches/${matchId}`);
+                    get(matchRef).then(snapshot => {
+                        if (snapshot.exists()) {
+                            const match = snapshot.val();
+                            matchDetails.innerHTML = `
+                                <div class="form-group">
+                                    <label for="editDate">Date:</label>
+                                    <input type="date" id="editDate" value="${match.date}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="editTime">Time:</label>
+                                    <input type="time" id="editTime" value="${match.time}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="editHomeTeam">Home Team:</label>
+                                    <input type="text" id="editHomeTeam" value="${match.home}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="editAwayTeam">Away Team:</label>
+                                    <input type="text" id="editAwayTeam" value="${match.away}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="editScore">Score:</label>
+                                    <input type="text" id="editScore" value="${match.score || ''}" placeholder="e.g., 2-1">
+                                </div>
+                                <div class="form-group">
+                                    <label for="editResult">Result:</label>
+                                    <select id="editResult" required>
+                                        <option value="NOT_STARTED" ${match.result === 'NOT_STARTED' ? 'selected' : ''}>Not Started</option>
+                                        <option value="ONGOING" ${match.result === 'ONGOING' ? 'selected' : ''}>Ongoing</option>
+                                        <option value="WON" ${match.result === 'WON' ? 'selected' : ''}>WON</option>
+                                        <option value="LOSS" ${match.result === 'LOSS' ? 'selected' : ''}>LOSS</option>
+                                        <option value="DRAW" ${match.result === 'DRAW' ? 'selected' : ''}>DRAW</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="editCompetition">Competition:</label>
+                                    <select id="editCompetition" required>
+                                        <option value="LEAGUE" ${match.competition === 'LEAGUE' ? 'selected' : ''}>League</option>
+                                        <option value="TOURNAMENT" ${match.competition === 'TOURNAMENT' ? 'selected' : ''}>Tournament</option>
+                                        <option value="FRIENDLY" ${match.competition === 'FRIENDLY' ? 'selected' : ''}>Friendly</option>
+                                        <option value="OTHER" ${match.competition === 'OTHER' ? 'selected' : ''}>Other</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="editCompetitionOther">If Other, Specify:</label>
+                                    <input type="text" id="editCompetitionOther" value="${match.competition === 'OTHER' ? match.competitionOther : ''}" placeholder="Type here if applicable">
+                                </div>
+                                <div id="mediaContainer">
+                                    ${match.media ? `<p><strong>Media:</strong> <a href="${match.media}" target="_blank">View Media</a></p>` : ''}
+                                </div>
+                            `;
+                        }
+                    }).catch(error => {
+                        console.error('Error fetching match details:', error);
+                    });
+                } else {
+                    matchDetails.innerHTML = '';
+                }
+            });
+
+            // Handle form submission for updating match details
+            updateForm.addEventListener('submit', function (event) {
+                event.preventDefault();
+                const matchId = matchSelect.value;
+                const date = document.getElementById('editDate').value;
+                const time = document.getElementById('editTime').value;
+                const homeTeam = document.getElementById('editHomeTeam').value;
+                const awayTeam = document.getElementById('editAwayTeam').value;
+                const score = document.getElementById('editScore').value;
+                const result = document.getElementById('editResult').value;
+                const competition = document.getElementById('editCompetition').value;
+                const competitionOther = document.getElementById('editCompetitionOther').value;
+
+                if (matchId) {
+                    const updatedMatch = {
+                        date,
+                        time,
+                        home: homeTeam,
+                        away: awayTeam,
+                        score,
+                        result,
+                        competition: competition === 'OTHER' ? competitionOther : competition
+                    };
+
+                    update(ref(database, `matches/${matchId}`), updatedMatch)
+                        .then(() => {
+                            alert('Match details updated successfully');
+                        })
+                        .catch((error) => {
+                            console.error('Error updating match details:', error);
+                        });
+                }
+            });
+
+            // Handle media file upload
+            updateForm.addEventListener('submit', function (event) {
+                event.preventDefault();
+                const file = mediaFileInput.files[0];
+                const matchId = matchSelect.value;
+                if (file && matchId) {
+                    const storagePath = `match_media/${matchId}/${file.name}`;
+                    const mediaRef = storageRef(storage, storagePath);
+
+                    uploadBytes(mediaRef, file).then(() => {
+                        return getDownloadURL(mediaRef);
+                    }).then((url) => {
+                        return update(ref(database, `matches/${matchId}`), { media: url });
+                    }).then(() => {
+                        alert('Media updated successfully');
+                    }).catch((error) => {
+                        console.error('Error uploading media:', error);
+                    });
+                }
+            });
+
+            // Handle new match form submission
+            newMatchForm.addEventListener('submit', function (event) {
+                event.preventDefault();
+                const date = document.getElementById('newDate').value;
+                const time = document.getElementById('newTime').value;
+                const homeTeam = document.getElementById('newHomeTeam').value;
+                const awayTeam = document.getElementById('newAwayTeam').value;
+                const score = document.getElementById('newScore').value;
+                const result = document.getElementById('newResult').value;
+                const competition = document.getElementById('newCompetition').value;
+                const competitionOther = document.getElementById('newCompetitionOther').value;
+
+                const newMatch = {
+                    date,
+                    time,
+                    home: homeTeam,
+                    away: awayTeam,
+                    score,
+                    result,
+                    competition: competition === 'OTHER' ? competitionOther : competition
+                };
+
+                push(ref(database, 'matches'), newMatch)
+                    .then(() => {
+                        alert('New match added successfully');
+                        newMatchForm.reset();
+                    })
+                    .catch((error) => {
+                        console.error('Error adding new match:', error);
+                    });
+            });
+        });
+    </script>
+    <style>
+        .form-group {
+            margin-bottom: 1em;
+        }
+        label {
+            display: block;
+            margin-bottom: .5em;
+        }
+        input[type="date"], input[type="time"], input[type="text"], select {
+            width: 100%;
+            padding: .5em;
+            margin-bottom: .5em;
+            border: 1px solid #ccc;
+            border-radius: .25em;
+        }
+        button {
+            padding: .5em 1em;
+            border: none;
+            border-radius: .25em;
+            color: #fff;
+            background-color: #007bff;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1em;
+        }
+        .login-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 1em;
+            text-align: center;
+        }
+        .login-container h2 {
+            margin-bottom: 1em;
+        }
+        .login-container input[type="email"], .login-container input[type="password"] {
+            width: calc(100% - 2em);
+            padding: .5em;
+            margin-bottom: .5em;
+            border: 1px solid #ccc;
+            border-radius: .25em;
+        }
+        .login-container button {
+            width: 100%;
+            padding: .5em;
+            background-color: #007bff;
+            border: none;
+            border-radius: .25em;
+            color: #fff;
+            cursor: pointer;
+        }
+        .login-container button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container" id="loginContainer">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="loginEmail">Email:</label>
+                <input type="email" id="loginEmail" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">Password:</label>
+                <input type="password" id="loginPassword" name="password" required>
+            </div>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+
+    <div class="container">
+        <!-- Form to add new match -->
+        <h1>Add New Match</h1>
+        <form id="newMatchForm">
+            <!-- New match form fields here -->
+            <div class="form-group">
+                <label for="newDate">Date:</label>
+                <input type="date" id="newDate" name="date" required>
+            </div>
+            <div class="form-group">
+                <label for="newTime">Time:</label>
+                <input type="time" id="newTime" name="time" required>
+            </div>
+            <div class="form-group">
+                <label for="newHomeTeam">Home Team:</label>
+                <input type="text" id="newHomeTeam" name="homeTeam" required>
+            </div>
+            <div class="form-group">
+                <label for="newAwayTeam">Away Team:</label>
+                <input type="text" id="newAwayTeam" name="awayTeam" required>
+            </div>
+            <div class="form-group">
+                <label for="newScore">Score:</label>
+                <input type="text" id="newScore" name="score" placeholder="e.g., 2-1">
+            </div>
+            <div class="form-group">
+                <label for="newResult">Result:</label>
+                <select id="newResult" name="result" required>
+                    <option value="NOT_STARTED">Not Started</option>
+                    <option value="ONGOING">Ongoing</option>
+                    <option value="WON">WON</option>
+                    <option value="LOSS">LOSS</option>
+                    <option value="DRAW">DRAW</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="newCompetition">Competition:</label>
+                <select id="newCompetition" name="competition" required>
+                    <option value="LEAGUE">League</option>
+                    <option value="TOURNAMENT">Tournament</option>
+                    <option value="FRIENDLY">Friendly</option>
+                    <option value="OTHER">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="newCompetitionOther">If Other, Specify:</label>
+                <input type="text" id="newCompetitionOther" name="competitionOther" placeholder="Type here if applicable">
+            </div>
+            <button type="submit">Add Match</button>
+        </form>
+
+        <!-- Form to update existing match details and media -->
+        <h2>Update Match Details</h2>
+        <form id="updateForm">
+            <div class="form-group">
+                <label for="matchSelect">Select Match:</label>
+                <select id="matchSelect" required>
+                    <!-- Options will be dynamically populated here -->
+                </select>
+            </div>
+            <div id="matchDetails">
+                <!-- Match details will be dynamically populated here -->
+            </div>
+
+            <button type="submit">Update Match</button>
+        </form>
+    </div>
+</body>
+</html>
