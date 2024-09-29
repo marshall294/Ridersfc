@@ -156,10 +156,10 @@
     </div>
 
     <div class="container">
-        <div class="title">SEPA Season 5</div>
-        <div class="details">G.S.S Suleja | September 23, 2024 Time: 4:00 PM</div>
+        <div class="title">SEPA Season 5 Knockout Stage</div>
+        <div class="details">G.S.S Suleja | October 05 2024 Time: 4:00 PM</div>
         <div class="fixture">
-            <span>Riders FC</span> <strong>VS</strong> <span>Rock United FC</span>
+            <span>Riders FC</span> <strong>VS</strong> <span>Super Lion FC</span>
         </div>
         <div id="countdown" class="countdown"></div>
         <div class="footer">
@@ -204,8 +204,8 @@
     </audio>
 
     <script>
-        // Set the match date and time (4:00 PM on September 23, 2024)
-        var matchDate = new Date("September 23, 2024 16:00:00").getTime();
+        // Set the match date and time (4:00 PM on October 5, 2024)
+        var matchDate = new Date("October 5, 2024 16:00:00").getTime();
 
         // Update the countdown every 1 second
         var countdownFunction = setInterval(function() {
@@ -232,7 +232,7 @@
             if (distance < 0 && distance >= -7200000) { // 2 hours (in milliseconds)
                 document.getElementById("countdown").innerHTML = "Match is ongoing! Score will be displayed at FT";
             } else if (distance < -7200000) { // After 2 hours
-                document.getElementById("countdown").innerHTML = "Finished FT Score 1:0";
+                document.getElementById("countdown").innerHTML = "Finished FT Score -:-";
                 clearInterval(countdownFunction); // Stop the countdown
             }
 
